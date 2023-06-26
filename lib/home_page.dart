@@ -14,7 +14,8 @@ class _HomePageState extends State<HomePage> {
   List<double>? _accelerometerValues;
   List<double>? _gyroscopeValues;
   List<double>? _magnetoValues;
-  final _streamSubscriptions = <StreamSubscription<dynamic>>[];
+  final List<StreamSubscription<dynamic>> _streamSubscriptions =
+      <StreamSubscription<dynamic>>[];
 
   @override
   void dispose() {
