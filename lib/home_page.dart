@@ -1,7 +1,7 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:sensors_plus/sensors_plus.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:moto_gp/calculations_bloc/calculations_bloc.dart';
+import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,93 +11,56 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<double>? _accelerometerValues;
-  List<double>? _gyroscopeValues;
-  List<double>? _magnetoValues;
-  final List<StreamSubscription<dynamic>> _streamSubscriptions =
-      <StreamSubscription<dynamic>>[];
-
-  @override
-  void dispose() {
-    super.dispose();
-    for (final subscription in _streamSubscriptions) {
-      subscription.cancel();
-    }
-  }
+  late CalculationsBloc _calculationsBloc;
 
   @override
   void initState() {
+    _calculationsBloc = CalculationsBloc();
     super.initState();
-    _streamSubscriptions.add(
-      accelerometerEvents.listen(
-        (AccelerometerEvent event) {
-          setState(() {
-            _accelerometerValues = <double>[event.x, event.y, event.z];
-          });
-        },
-      ),
-    );
-    _streamSubscriptions.add(
-      gyroscopeEvents.listen(
-        (GyroscopeEvent event) {
-          setState(() {
-            _gyroscopeValues = <double>[event.x, event.y, event.z];
-          });
-        },
-      ),
-    );
-    _streamSubscriptions.add(
-      magnetometerEvents.listen(
-        (MagnetometerEvent event) {
-          setState(() {
-            _magnetoValues = <double>[event.x, event.y, event.z];
-          });
-        },
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final gyroscope =
-        _gyroscopeValues?.map((double v) => v.toStringAsFixed(1)).toList();
-    final accelerometer =
-        _accelerometerValues?.map((double v) => v.toStringAsFixed(1)).toList();
-    final magneto =
-        _magnetoValues?.map((double v) => v.toStringAsFixed(1)).toList();
-
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Flexible(child: Text('Accelerometer: $accelerometer')),
+        child: BlocBuilder<CalculationsBloc, CalculationsState>(
+          bloc: _calculationsBloc,
+          builder: (context, state) {
+            if (state is! CalculationsSuccess) {
+              return Center(
+                child: Text(state.toString()),
+              );
+            }
+
+            return Center(
+              child: SfRadialGauge(
+                enableLoadingAnimation: true,
+                animationDuration: 2000,
+                axes: [
+                  RadialAxis(
+                    ranges: [
+                      GaugeRange(
+                        startValue: -50,
+                        endValue: 50,
+                        gradient: const SweepGradient(
+                          colors: [Colors.red, Colors.green, Colors.red],
+                          stops: [0.0, 0.5, 1.0],
+                        ),
+                      ),
+                    ],
+                    minimum: -50.0,
+                    maximum: 50.0,
+                    pointers: [
+                      NeedlePointer(value: state.angle),
+                    ],
+                  ),
                 ],
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Flexible(child: Text('Gyroscope: $gyroscope')),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Flexible(child: Text('Magnetometer: $magneto')),
-                ],
-              ),
-            ),
-          ],
+            );
+            // return Center(
+            //   child: Text(state.angle.toStringAsFixed(2)),
+            // );
+          },
         ),
       ),
     );
