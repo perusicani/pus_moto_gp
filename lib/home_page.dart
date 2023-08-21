@@ -32,34 +32,71 @@ class _HomePageState extends State<HomePage> {
               );
             }
 
+            // return Center(
+            //   child: SfRadialGauge(
+            //     enableLoadingAnimation: true,
+            //     animationDuration: 2000,
+            //     axes: [
+            //       RadialAxis(
+            //         ranges: [
+            //           GaugeRange(
+            //             startValue: -50,
+            //             endValue: 50,
+            //             gradient: const SweepGradient(
+            //               colors: [Colors.red, Colors.green, Colors.red],
+            //               stops: [0.0, 0.5, 1.0],
+            //             ),
+            //           ),
+            //         ],
+            //         minimum: -50.0,
+            //         maximum: 50.0,
+            //         pointers: [
+            //           NeedlePointer(value: state.angle)
+            //         ],
+            //       ),
+            //     ],
+            //   ),
+            // );
             return Center(
-              child: SfRadialGauge(
-                enableLoadingAnimation: true,
-                animationDuration: 2000,
-                axes: [
-                  RadialAxis(
-                    ranges: [
-                      GaugeRange(
-                        startValue: -50,
-                        endValue: 50,
-                        gradient: const SweepGradient(
-                          colors: [Colors.red, Colors.green, Colors.red],
-                          stops: [0.0, 0.5, 1.0],
-                        ),
-                      ),
-                    ],
-                    minimum: -50.0,
-                    maximum: 50.0,
-                    pointers: [
-                      NeedlePointer(value: state.angle),
-                    ],
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                      "accelero: ${state.accelerometerValues!.map((e) => e.toStringAsFixed(2)).toList().join(", ")}"),
+                  Text(
+                      "gyro: ${state.gyroscopeValues!.map((e) => e.toStringAsFixed(2)).toList().join(", ")}"),
+                  ElevatedButton(
+                    onPressed: () => _calculationsBloc.setWriteBool('still'),
+                    child: const Text("save stand still values"),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => _calculationsBloc.setWriteBool('forward'),
+                    child: const Text("save forward no angle values"),
+                  ),
+                  ElevatedButton(
+                    onPressed: () =>
+                        _calculationsBloc.setWriteBool('still_left'),
+                    child: const Text("save stand still left lean values"),
+                  ),
+                  ElevatedButton(
+                    onPressed: () =>
+                        _calculationsBloc.setWriteBool('still_right'),
+                    child: const Text("save stand still right lean values"),
+                  ),
+                  ElevatedButton(
+                    onPressed: () =>
+                        _calculationsBloc.setWriteBool('forward_left'),
+                    child: const Text("save forward left lean values"),
+                  ),
+                  ElevatedButton(
+                    onPressed: () =>
+                        _calculationsBloc.setWriteBool('forward_right'),
+                    child: const Text("save forward right lean values"),
                   ),
                 ],
               ),
             );
-            // return Center(
-            //   child: Text(state.angle.toStringAsFixed(2)),
-            // );
           },
         ),
       ),
