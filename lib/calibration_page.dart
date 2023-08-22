@@ -27,11 +27,15 @@ class CalibrationPage extends StatelessWidget {
                           calculationBloc.add(StartTiltCalibration()),
                       child: const Text("Tilt calibration"),
                     ),
+                    if (calculationBloc.tiltVals != null)
+                      Text(calculationBloc.tiltVals.toString()),
                     ElevatedButton(
                       onPressed: () =>
                           calculationBloc.add(StartUprightCalibration()),
                       child: const Text("Upright calibration"),
                     ),
+                    if (calculationBloc.uprightVals != null)
+                      Text(calculationBloc.uprightVals.toString()),
                     ElevatedButton(
                       onPressed: () => Navigator.of(context).push(
                         MaterialPageRoute(

@@ -27,6 +27,9 @@ class CalculationsBloc extends Bloc<CalculationsEvent, CalculationsState> {
   List<double>? _accelerometerTiltValues;
   List<double>? _accelerometerUprightValues;
 
+  List<double>? get tiltVals => _accelerometerTiltValues;
+  List<double>? get uprightVals => _accelerometerUprightValues;
+
   // Helper
   List<List<double>> _compiledData = [];
   bool _collectUprightData = false;
