@@ -34,17 +34,20 @@ class CalibrationPage extends StatelessWidget {
                           calculationBloc.add(StartUprightCalibration()),
                       child: const Text("Upright calibration"),
                     ),
-                    if (calculationBloc.uprightVals != null)
-                      Text(calculationBloc.uprightVals.toString()),
+                    if (calculationBloc.flatVals != null)
+                      Text(calculationBloc.flatVals.toString()),
                     ElevatedButton(
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => BlocProvider(
-                            create: (context) => calculationBloc,
-                            child: HomePage(),
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => BlocProvider(
+                              create: (context) => calculationBloc,
+                              child: HomePage(),
+                            ),
                           ),
-                        ),
-                      ),
+                        );
+                        calculationBloc.add(Calculate());
+                      },
                       child: const Text("go to home page"),
                     ),
                   ],
