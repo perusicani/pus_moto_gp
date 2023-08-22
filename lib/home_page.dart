@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moto_gp/calculations_bloc/calculations_bloc.dart';
-import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,20 +10,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late CalculationsBloc _calculationsBloc;
-
-  @override
-  void initState() {
-    _calculationsBloc = CalculationsBloc();
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: BlocBuilder<CalculationsBloc, CalculationsState>(
-          bloc: _calculationsBloc,
+          bloc: BlocProvider.of<CalculationsBloc>(context),
           builder: (context, state) {
             if (state is! CalculationsSuccess) {
               return Center(
@@ -33,32 +24,33 @@ class _HomePageState extends State<HomePage> {
             }
 
             return Center(
-              child: SfRadialGauge(
-                enableLoadingAnimation: true,
-                animationDuration: 2000,
-                axes: [
-                  RadialAxis(
-                    ranges: [
-                      GaugeRange(
-                        startValue: -50,
-                        endValue: 50,
-                        gradient: const SweepGradient(
-                          colors: [Colors.red, Colors.green, Colors.red],
-                          stops: [0.0, 0.5, 1.0],
-                        ),
-                      ),
-                    ],
-                    minimum: -50.0,
-                    maximum: 50.0,
-                    pointers: [
-                      NeedlePointer(value: state.angle),
-                    ],
-                  ),
-                ],
-              ),
+              child: Text(state.accelerometerValues.toString()),
             );
+
             // return Center(
-            //   child: Text(state.angle.toStringAsFixed(2)),
+            //   child: SfRadialGauge(
+            //     enableLoadingAnimation: true,
+            //     animationDuration: 2000,
+            //     axes: [
+            //       RadialAxis(
+            //         ranges: [
+            //           GaugeRange(
+            //             startValue: -50,
+            //             endValue: 50,
+            //             gradient: const SweepGradient(
+            //               colors: [Colors.red, Colors.green, Colors.red],
+            //               stops: [0.0, 0.5, 1.0],
+            //             ),
+            //           ),
+            //         ],
+            //         minimum: -50.0,
+            //         maximum: 50.0,
+            //         pointers: [
+            //           NeedlePointer(value: state.angle),
+            //         ],
+            //       ),
+            //     ],
+            //   ),
             // );
           },
         ),
