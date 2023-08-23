@@ -38,6 +38,9 @@ class CalculationsBloc extends Bloc<CalculationsEvent, CalculationsState> {
   List<List<double>> _compiledData = [];
   bool _collectFlatData = false;
   bool _collectTiltData = false;
+  bool _calculateAngle = false;
+
+  void startCalculatingAngle() => _calculateAngle = true;
 
   void _init() {
     _streamSubscriptions.add(
@@ -46,7 +49,7 @@ class CalculationsBloc extends Bloc<CalculationsEvent, CalculationsState> {
           _a = <double>[event.x, event.y, event.z];
           if (_collectTiltData) _compiledData.add(_a!);
           if (_collectFlatData) _compiledData.add(_a!);
-          // add(Calculate());
+          if (_calculateAngle) add(Calculate());
         },
       ),
     );
@@ -101,9 +104,23 @@ class CalculationsBloc extends Bloc<CalculationsEvent, CalculationsState> {
 
       // Success state will be edited with the necessary data -> angle that should be shown or whatever we need
       emit(CalculationsSuccess(
-        [A('x', X, Y, Z), A('y', X, Y, Z), A('z', X, Y, Z)],
+        [
+          A('x', X, Y, Z),
+          A('y', X, Y, Z),
+          A('z', X, Y, Z),
+          _computeLean(A('x', X, Y, Z), A('y', X, Y, Z), A('z', X, Y, Z))
+        ],
       ));
     }
+  }
+
+  double _computeLean(double Ax, double Ay, double Az) {
+    double s = sqrt(Ax * Ax + Ay * Ay - G * G);
+
+    double angle = asin((G * Ax - s * Ay) / (Ax * Ax + Ay * Ay));
+
+    print(angle);
+    return angle;
   }
 
   // assume ax, ay, az are values given by accelerometer

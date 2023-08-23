@@ -38,6 +38,7 @@ class CalibrationPage extends StatelessWidget {
                       Text(calculationBloc.flatVals.toString()),
                     ElevatedButton(
                       onPressed: () {
+                        calculationBloc.startCalculatingAngle();
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => BlocProvider(
