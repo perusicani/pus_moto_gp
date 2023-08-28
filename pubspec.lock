@@ -168,6 +168,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
+  position_sensors:
+    dependency: "direct main"
+    description:
+      name: position_sensors
+      sha256: cc83d1032d9eb67b2cc1749693d324f2a56f9b1f5bad78935867d62984a58236
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.3"
+  position_sensors_platform_interface:
+    dependency: transitive
+    description:
+      name: position_sensors_platform_interface
+      sha256: "540d4f353aebf362d37304d6c9e82688175df77565d52fea7e9c097c36073282"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.5"
   provider:
     dependency: transitive
     description:
