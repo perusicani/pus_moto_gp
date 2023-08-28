@@ -24,7 +24,11 @@ class _HomePageState extends State<HomePage> {
             }
 
             return Center(
-              child: Text(state.accelerometerValues.toString()),
+              child: Column(
+                children: state.accelerometerValues!
+                    .map((e) => Text(e.toString()))
+                    .toList(),
+              ),
             );
 
             // return Center(

@@ -71,12 +71,6 @@ class CalculationsBloc extends Bloc<CalculationsEvent, CalculationsState> {
     if (_a == null) {
       emit(CalculationsLoading());
     } else {
-      // // TODO:
-      //     Here goes the actual mat
-      // hs
-      // //
-
-      // Steps
       // compute cross product of collected data
       List<double> c = [];
       c.add(_aF![1] * _aT![2] - _aT![1] * _aF![2]);
@@ -119,7 +113,7 @@ class CalculationsBloc extends Bloc<CalculationsEvent, CalculationsState> {
 
     double angle = asin((G * Ax - s * Ay) / (Ax * Ax + Ay * Ay));
 
-    print(angle);
+    // print(angle);
     return angle;
   }
 
