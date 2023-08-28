@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:position_sensors/position_sensors.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:collection/collection.dart';
+import 'package:vector_math/vector_math.dart';
 
 part 'calculations_event.dart';
 part 'calculations_state.dart';
@@ -20,6 +22,8 @@ class CalculationsBloc extends Bloc<CalculationsEvent, CalculationsState> {
         (event, emit) => _startTiltCalibration(event, emit));
     on<StartUprightCalibration>(
         (event, emit) => _startUprightCalibration(event, emit));
+    on<StartRotationCalibration>(
+        (event, emit) => _startRotationCalibration(event, emit));
     on<Calibrating>((event, emit) => _calibrating(event, emit));
   }
 
@@ -30,30 +34,54 @@ class CalculationsBloc extends Bloc<CalculationsEvent, CalculationsState> {
   // Persistent data
   List<double>? _aT;
   List<double>? _aF;
+  List<Quaternion> _rot = [];
+  Quaternion? _calibration;
 
   List<double>? get tiltVals => _aT;
   List<double>? get flatVals => _aF;
+  List<Quaternion>? get rotation => _rot;
+  Quaternion? get calibration => _calibration;
+  Quaternion? get inverse =>
+      _calibration != null ? _calibration!.inverted() : null;
 
   // Helper
   List<List<double>> _compiledData = [];
   bool _collectFlatData = false;
   bool _collectTiltData = false;
+  bool _collectRotationData = false;
   bool _calculateAngle = false;
 
   void startCalculatingAngle() => _calculateAngle = true;
 
-  void _init() {
+  Future<void> _init() async {
+    // _streamSubscriptions.add(
+    //   accelerometerEvents.listen(
+    //     (AccelerometerEvent event) {
+    //       _a = <double>[event.x, event.y, event.z];
+    //       if (_collectTiltData) _compiledData.add(_a!);
+    //       if (_collectFlatData) _compiledData.add(_a!);
+    //       if (_calculateAngle) add(Calculate());
+    //     },
+    //   ),
+    // );
     _streamSubscriptions.add(
-      accelerometerEvents.listen(
-        (AccelerometerEvent event) {
-          _a = <double>[event.x, event.y, event.z];
-          if (_collectTiltData) _compiledData.add(_a!);
-          if (_collectFlatData) _compiledData.add(_a!);
-          if (_calculateAngle) add(Calculate());
-        },
-      ),
+      PositionSensors.rotationEvents.listen((RotationEvent event) {
+        // print(
+        //     "Rotation vector: [x: ${event.x}, y: ${event.x}, z: ${event.z}, w: ${event.w}]");
+        _currentRot = Quaternion(event.x, event.y, event.z, event.w);
+        // EulerAngles a = toEulerAngles(_curentRot);
+        // print(a.pitch);
+        // print(a.roll);
+        // print(a.yaw);
+        if (_collectRotationData) {
+          _rot.add(Quaternion(event.x, event.y, event.z, event.w));
+        }
+        if (_calculateAngle) add(Calculate());
+      }),
     );
   }
+
+  late Quaternion _currentRot;
 
   @override
   Future<void> close() {
@@ -68,69 +96,76 @@ class CalculationsBloc extends Bloc<CalculationsEvent, CalculationsState> {
   }
 
   void _calculate(Calculate event, Emitter<CalculationsState> emit) {
-    if (_a == null) {
-      emit(CalculationsLoading());
-    } else {
-      // compute cross product of collected data
-      List<double> c = [];
-      c.add(_aF![1] * _aT![2] - _aT![1] * _aF![2]);
-      c.add(_aT![0] * _aF![2] - _aF![0] * _aT![2]);
-      c.add(_aF![0] * _aT![1] - _aT![0] * _aF![2]);
+    // if (_a == null) {
+    //   emit(CalculationsLoading());
+    // } else {
 
-      // X, Y, Z
-      List<double> X = [0, 0, 0];
-      List<double> Y = [0, 0, 0];
-      List<double> Z = [0, 0, 0];
+    if (_calculateAngle) {
+      EulerAngles b = toEulerAngles(_currentRot);
 
-      for (var i = 0; i < 3; i++) {
-        Y[i] = _aT![i] / G;
-        // Tu ispadne c[0] == 0 - validiraj!!!
-        if (c[0] == 0) c[0] = 0.1;
-        if (c[1] == 0) c[1] = 0.1;
-        if (c[2] == 0) c[2] = 0.1;
-        Z[i] = c[i] / sqrt(c[0] * c[0]) + c[1] * c[1] + c[2] * c[2];
-      }
+      // trenutni quaternion * inverted calibration quaternion
+      // https://paroj.github.io/gltut/Positioning/Tut08%20Quaternions.htmlx
+      // a = trenutna
+      // b = inverzna
+      Quaternion r = Quaternion(
+        _currentRot.w * inverse!.x +
+            _currentRot.x * inverse!.w +
+            _currentRot.y * inverse!.z -
+            _currentRot.z * inverse!.y,
+        _currentRot.w * inverse!.y +
+            _currentRot.y * inverse!.w +
+            _currentRot.z * inverse!.x -
+            _currentRot.x * inverse!.z,
+        _currentRot.w * inverse!.z +
+            _currentRot.z * inverse!.w +
+            _currentRot.x * inverse!.y -
+            _currentRot.y * inverse!.x,
+        _currentRot.w * inverse!.w -
+            _currentRot.x * inverse!.x -
+            _currentRot.y * inverse!.y -
+            _currentRot.z * inverse!.z,
+      );
+      _currentRot = r;
 
-      // compute X by cross product of Y and Z
-      X[0] = Y[1] * Z[2] - Z[1] * Y[2];
-      X[1] = Z[0] * Y[2] - Y[0] * Z[2];
-      X[2] = Y[0] * Z[1] - Z[0] * Y[2];
+      EulerAngles a = toEulerAngles(_currentRot);
 
-      // Success state will be edited with the necessary data -> angle that should be shown or whatever we need
-      emit(CalculationsSuccess(
-        [
-          A('x', X, Y, Z),
-          A('y', X, Y, Z),
-          A('z', X, Y, Z),
-          _computeLean(A('x', X, Y, Z), A('y', X, Y, Z), A('z', X, Y, Z))
-        ],
-      ));
+      emit(CalculationsSuccess([
+        0.0,
+        degrees(b.pitch!),
+        degrees(b.roll!),
+        degrees(b.yaw!),
+        0.0,
+        0.0,
+        0.0,
+        degrees(a.pitch!),
+        degrees(a.roll!),
+        degrees(a.yaw!),
+        0.0,
+      ]));
     }
   }
 
-  double _computeLean(double Ax, double Ay, double Az) {
-    double s = sqrt(Ax * Ax + Ay * Ay - G * G);
+// this implementation assumes normalized quaternion
+// converts to Euler angles in 3-2-1 sequence
+  EulerAngles toEulerAngles(Quaternion q) {
+    EulerAngles angles = EulerAngles();
 
-    double angle = asin((G * Ax - s * Ay) / (Ax * Ax + Ay * Ay));
+    // roll (x-axis rotation)
+    double sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
+    double cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
+    angles.roll = atan2(sinr_cosp, cosr_cosp);
 
-    // print(angle);
-    return angle;
-  }
+    // pitch (y-axis rotation)
+    double sinp = sqrt(1 + 2 * (q.w * q.y - q.x * q.z));
+    double cosp = sqrt(1 - 2 * (q.w * q.y - q.x * q.z));
+    angles.pitch = 2 * atan2(sinp, cosp) - pi / 2;
 
-  // assume ax, ay, az are values given by accelerometer
-  double A(
-    String coordinate,
-    List<double> X,
-    List<double> Y,
-    List<double> Z,
-  ) {
-    if (coordinate == 'x') {
-      return _a![0] * X[0] + _a![1] * X[1] + _a![2] * X[2];
-    } else if (coordinate == 'y') {
-      return _a![0] * Y[0] + _a![1] * Y[1] + _a![2] * Y[2];
-    } else {
-      return _a![0] * Z[0] + _a![1] * Z[1] + _a![2] * Z[2];
-    }
+    // yaw (z-axis rotation)
+    double siny_cosp = 2 * (q.w * q.z + q.x * q.y);
+    double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
+    angles.yaw = atan2(siny_cosp, cosy_cosp);
+
+    return angles;
   }
 
   void _startTiltCalibration(
@@ -208,5 +243,56 @@ class CalculationsBloc extends Bloc<CalculationsEvent, CalculationsState> {
       }
       secondsRemaining--;
     });
+  }
+
+  void _startRotationCalibration(
+      StartRotationCalibration event, Emitter<CalculationsState> emit) {
+    _collectRotationData = true;
+    int secondsRemaining = calibrationTime;
+
+    Timer.periodic(const Duration(seconds: 1), (timer) {
+      add(Calibrating(secondsRemaining));
+      if (secondsRemaining == 0) {
+        _collectRotationData = false;
+
+        List<double> x = [];
+        List<double> y = [];
+        List<double> z = [];
+        List<double> w = [];
+        // Average
+        for (Quaternion values in _rot) {
+          x.add(values.x);
+          y.add(values.y);
+          z.add(values.z);
+          w.add(values.w);
+        }
+
+        _calibration = Quaternion(x.average, y.average, z.average, w.average);
+
+        // Reset
+        _rot = [];
+
+        timer.cancel();
+        add(EmitCalibrated());
+      }
+      secondsRemaining--;
+    });
+  }
+}
+
+class EulerAngles {
+  double? roll, pitch, yaw;
+  EulerAngles({this.pitch, this.roll, this.yaw});
+
+  void setPitch(double val) {
+    pitch = val;
+  }
+
+  void setRoll(double val) {
+    roll = val;
+  }
+
+  void setYaw(double val) {
+    yaw = val;
   }
 }

@@ -171,11 +171,10 @@ packages:
   position_sensors:
     dependency: "direct main"
     description:
-      name: position_sensors
-      sha256: cc83d1032d9eb67b2cc1749693d324f2a56f9b1f5bad78935867d62984a58236
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.3"
+      path: "C:\\Users\\Administrator\\Desktop\\fax\\pus\\moto_gp\\lib\\position_sensors-main\\position_sensors"
+      relative: false
+    source: path
+    version: "0.0.2"
   position_sensors_platform_interface:
     dependency: transitive
     description:
@@ -278,7 +277,7 @@ packages:
     source: hosted
     version: "0.5.1"
   vector_math:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: vector_math
       sha256: "80b3257d1492ce4d091729e3a67a60407d227c27241d6927be0130c98e741803"

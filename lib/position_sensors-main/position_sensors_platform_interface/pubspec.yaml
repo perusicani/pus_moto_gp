@@ -1,0 +1,18 @@
+name: position_sensors_platform_interface
+description: Common interface of position_sensors plugin.
+version: 0.0.1
+repository: https://github.com/pabloufrn/position_sensors
+
+environment:
+  sdk: ">=2.15.1 <3.0.0"
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  plugin_platform_interface: ^2.1.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^1.0.0

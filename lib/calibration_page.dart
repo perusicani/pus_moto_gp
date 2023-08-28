@@ -37,6 +37,15 @@ class CalibrationPage extends StatelessWidget {
                     if (calculationBloc.flatVals != null)
                       Text(calculationBloc.flatVals.toString()),
                     ElevatedButton(
+                      onPressed: () =>
+                          calculationBloc.add(StartRotationCalibration()),
+                      child: const Text("Rotation calibration"),
+                    ),
+                    if (calculationBloc.calibration != null)
+                      Text(
+                        "x: ${calculationBloc.calibration!.x}, y: ${calculationBloc.calibration!.y}, z: ${calculationBloc.calibration!.z}, w: ${calculationBloc.calibration!.w}",
+                      ),
+                    ElevatedButton(
                       onPressed: () {
                         calculationBloc.startCalculatingAngle();
                         Navigator.of(context).push(

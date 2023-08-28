@@ -8,6 +8,8 @@ class StartUprightCalibration extends CalculationsEvent {}
 
 class StartTiltCalibration extends CalculationsEvent {}
 
+class StartRotationCalibration extends CalculationsEvent {}
+
 class Calibrating extends CalculationsEvent {
   final int seconds;
   Calibrating(this.seconds);
