@@ -5,9 +5,8 @@ import 'package:moto_gp/home_page.dart';
 import 'calculations_bloc/calculations_bloc.dart';
 
 class CalibrationPage extends StatelessWidget {
-  CalibrationPage({super.key});
-
-  final CalculationsBloc calculationBloc = CalculationsBloc();
+  final CalculationsBloc calculationBloc;
+  const CalibrationPage(this.calculationBloc, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -51,10 +50,8 @@ class CalibrationPage extends StatelessWidget {
                               calculationBloc.startCalculatingAngle();
                               Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (context) => BlocProvider(
-                                    create: (context) => calculationBloc,
-                                    child: HomePage(),
-                                  ),
+                                  builder: (context) => HomePage(
+                                      calculationsBloc: calculationBloc),
                                 ),
                               );
                               calculationBloc.add(Calculate());

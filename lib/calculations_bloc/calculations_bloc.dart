@@ -15,6 +15,7 @@ const int calibrationTime = 5;
 class CalculationsBloc extends Bloc<CalculationsEvent, CalculationsState> {
   CalculationsBloc() : super(ReadyToCollectData()) {
     _init();
+    on<Reset>((event, emit) => _reset(event, emit));
     on<Calculate>((event, emit) => _calculate(event, emit));
     on<EmitCalibrated>((event, emit) => _emit(event, emit));
     on<StartRotationCalibration>(
@@ -56,6 +57,13 @@ class CalculationsBloc extends Bloc<CalculationsEvent, CalculationsState> {
         if (_calculateAngle) add(Calculate());
       }),
     );
+  }
+
+  void _reset(Reset event, Emitter<CalculationsState> emit) {
+    _collectRotationData = false;
+    _calculateAngle = false;
+    _calibration = null;
+    emit(ReadyToCollectData());
   }
 
   late Quaternion _currentRot;
