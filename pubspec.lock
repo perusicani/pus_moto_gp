@@ -171,8 +171,8 @@ packages:
   position_sensors:
     dependency: "direct main"
     description:
-      path: "C:\\Users\\Administrator\\Desktop\\fax\\pus\\moto_gp\\lib\\position_sensors-main\\position_sensors"
-      relative: false
+      path: "lib/position_sensors-main/position_sensors"
+      relative: true
     source: path
     version: "0.0.2"
   position_sensors_platform_interface:

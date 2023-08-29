@@ -22,20 +22,20 @@ class CalibrationPage extends StatelessWidget {
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    ElevatedButton(
-                      onPressed: () =>
-                          calculationBloc.add(StartTiltCalibration()),
-                      child: const Text("Tilt calibration"),
-                    ),
-                    if (calculationBloc.tiltVals != null)
-                      Text(calculationBloc.tiltVals.toString()),
-                    ElevatedButton(
-                      onPressed: () =>
-                          calculationBloc.add(StartUprightCalibration()),
-                      child: const Text("Upright calibration"),
-                    ),
-                    if (calculationBloc.flatVals != null)
-                      Text(calculationBloc.flatVals.toString()),
+                    // ElevatedButton(
+                    //   onPressed: () =>
+                    //       calculationBloc.add(StartTiltCalibration()),
+                    //   child: const Text("Tilt calibration"),
+                    // ),
+                    // if (calculationBloc.tiltVals != null)
+                    //   Text(calculationBloc.tiltVals.toString()),
+                    // ElevatedButton(
+                    //   onPressed: () =>
+                    //       calculationBloc.add(StartUprightCalibration()),
+                    //   child: const Text("Upright calibration"),
+                    // ),
+                    // if (calculationBloc.flatVals != null)
+                    //   Text(calculationBloc.flatVals.toString()),
                     ElevatedButton(
                       onPressed: () =>
                           calculationBloc.add(StartRotationCalibration()),

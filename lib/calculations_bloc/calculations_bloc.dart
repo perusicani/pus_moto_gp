@@ -18,52 +18,30 @@ class CalculationsBloc extends Bloc<CalculationsEvent, CalculationsState> {
     _init();
     on<Calculate>((event, emit) => _calculate(event, emit));
     on<EmitCalibrated>((event, emit) => _emit(event, emit));
-    on<StartTiltCalibration>(
-        (event, emit) => _startTiltCalibration(event, emit));
-    on<StartUprightCalibration>(
-        (event, emit) => _startUprightCalibration(event, emit));
     on<StartRotationCalibration>(
         (event, emit) => _startRotationCalibration(event, emit));
     on<Calibrating>((event, emit) => _calibrating(event, emit));
   }
 
-  List<double>? _a;
   final List<StreamSubscription<dynamic>> _streamSubscriptions =
       <StreamSubscription<dynamic>>[];
 
-  // Persistent data
-  List<double>? _aT;
-  List<double>? _aF;
   List<Quaternion> _rot = [];
   Quaternion? _calibration;
 
-  List<double>? get tiltVals => _aT;
-  List<double>? get flatVals => _aF;
   List<Quaternion>? get rotation => _rot;
   Quaternion? get calibration => _calibration;
   Quaternion? get inverse =>
       _calibration != null ? _calibration!.inverted() : null;
 
-  // Helper
-  List<List<double>> _compiledData = [];
-  bool _collectFlatData = false;
-  bool _collectTiltData = false;
+  double? angle;
+
   bool _collectRotationData = false;
   bool _calculateAngle = false;
 
   void startCalculatingAngle() => _calculateAngle = true;
 
   Future<void> _init() async {
-    // _streamSubscriptions.add(
-    //   accelerometerEvents.listen(
-    //     (AccelerometerEvent event) {
-    //       _a = <double>[event.x, event.y, event.z];
-    //       if (_collectTiltData) _compiledData.add(_a!);
-    //       if (_collectFlatData) _compiledData.add(_a!);
-    //       if (_calculateAngle) add(Calculate());
-    //     },
-    //   ),
-    // );
     _streamSubscriptions.add(
       PositionSensors.rotationEvents.listen((RotationEvent event) {
         // print(
@@ -95,10 +73,20 @@ class CalculationsBloc extends Bloc<CalculationsEvent, CalculationsState> {
     emit(CollectingData(event.seconds));
   }
 
+  // Timer? _refreshTimer;
+
+  // bool _shouldRefresh = false;
+  // List<double> _angles = [];
+
   void _calculate(Calculate event, Emitter<CalculationsState> emit) {
     // if (_a == null) {
     //   emit(CalculationsLoading());
     // } else {
+    // if (_refreshTimer == null) {
+    //   _refreshTimer = Timer.periodic(Duration(milliseconds: 500), (timer) {
+    //     _shouldRefresh = true;
+    //   });
+    // }
 
     if (_calculateAngle) {
       EulerAngles b = toEulerAngles(_currentRot);
@@ -129,19 +117,28 @@ class CalculationsBloc extends Bloc<CalculationsEvent, CalculationsState> {
 
       EulerAngles a = toEulerAngles(_currentRot);
 
-      emit(CalculationsSuccess([
-        0.0,
-        degrees(b.pitch!),
-        degrees(b.roll!),
-        degrees(b.yaw!),
-        0.0,
-        0.0,
-        0.0,
-        degrees(a.pitch!),
-        degrees(a.roll!),
-        degrees(a.yaw!),
-        0.0,
-      ]));
+      // _angles.add(a.pitch!);
+
+      angle = a.pitch!;
+      // if (angle == null) {
+      // } else if (_shouldRefresh) {
+      //   angle = _angles.average;
+      //   _shouldRefresh = false;
+      //   _angles = [];
+      // }
+
+      // print(_angles.length);
+      // print(degrees(angle!).toStringAsPrecision(3));
+
+      emit(CalculationsSuccess(
+        calibratedPitch: degrees(a.pitch!),
+        calibratedRoll: degrees(a.roll!),
+        calibratedYaw: degrees(a.yaw!),
+        initialPitch: degrees(b.pitch!),
+        initialRoll: degrees(b.roll!),
+        initialYaw: degrees(b.yaw!),
+        meanAngle: degrees(angle!),
+      ));
     }
   }
 
@@ -168,82 +165,8 @@ class CalculationsBloc extends Bloc<CalculationsEvent, CalculationsState> {
     return angles;
   }
 
-  void _startTiltCalibration(
-      StartTiltCalibration event, Emitter<CalculationsState> emit) {
-    print("tilt calibration started");
-    _collectTiltData = true;
-    int secondsRemaining = calibrationTime;
-
-    Timer.periodic(const Duration(seconds: 1), (timer) {
-      add(Calibrating(secondsRemaining));
-      if (secondsRemaining == 0) {
-        _collectTiltData = false;
-
-        List<double> x = [];
-        List<double> y = [];
-        List<double> z = [];
-
-        // Average
-        for (List<double> values in _compiledData) {
-          x.add(values[0]);
-          y.add(values[1]);
-          z.add(values[2]);
-        }
-
-        _aT = [];
-        _aT!.add(x.average);
-        _aT!.add(y.average);
-        _aT!.add(z.average);
-
-        // Reset
-        _compiledData = [];
-
-        print("tilt calibration finished");
-        timer.cancel();
-        add(EmitCalibrated());
-      }
-      secondsRemaining--;
-    });
-  }
-
   void _emit(EmitCalibrated event, Emitter<CalculationsState> emit) =>
       emit(ReadyToCollectData());
-
-  void _startUprightCalibration(
-      StartUprightCalibration event, Emitter<CalculationsState> emit) {
-    _collectFlatData = true;
-    int secondsRemaining = calibrationTime;
-
-    Timer.periodic(const Duration(seconds: 1), (timer) {
-      add(Calibrating(secondsRemaining));
-      if (secondsRemaining == 0) {
-        _collectFlatData = false;
-
-        List<double> x = [];
-        List<double> y = [];
-        List<double> z = [];
-
-        // Average
-        for (List<double> values in _compiledData) {
-          x.add(values[0]);
-          y.add(values[1]);
-          z.add(values[2]);
-        }
-
-        _aF = [];
-        _aF!.add(x.average);
-        _aF!.add(y.average);
-        _aF!.add(z.average);
-
-        // Reset
-        _compiledData = [];
-
-        timer.cancel();
-        add(EmitCalibrated());
-      }
-      secondsRemaining--;
-    });
-  }
 
   void _startRotationCalibration(
       StartRotationCalibration event, Emitter<CalculationsState> emit) {

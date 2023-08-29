@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:moto_gp/calculations_bloc/calculations_bloc.dart';
+import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -25,9 +26,51 @@ class _HomePageState extends State<HomePage> {
 
             return Center(
               child: Column(
-                children: state.accelerometerValues!
-                    .map((e) => Text(e.toStringAsPrecision(3)))
-                    .toList(),
+                children: [
+                  SfRadialGauge(
+                    enableLoadingAnimation: true,
+                    animationDuration: 2000,
+                    axes: [
+                      RadialAxis(
+                        ranges: [
+                          GaugeRange(
+                            startValue: -100,
+                            endValue: 100,
+                            gradient: const SweepGradient(
+                              colors: [Colors.red, Colors.green, Colors.red],
+                              stops: [0.0, 0.5, 1.0],
+                            ),
+                          ),
+                        ],
+                        minimum: -100.0,
+                        maximum: 100.0,
+                        pointers: [
+                          NeedlePointer(value: state.meanAngle),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const Text("raw pitch:"),
+                  Text(state.initialPitch.toStringAsPrecision(3)),
+                  const Text("raw roll:"),
+                  Text(state.initialRoll.toStringAsPrecision(3)),
+                  const Text("raw yaw:"),
+                  Text(state.initialYaw.toStringAsPrecision(3)),
+                  const Text("calibrated pitch:"),
+                  Text(state.calibratedPitch.toStringAsPrecision(3)),
+                  const Text("calibrated roll:"),
+                  Text(state.calibratedRoll.toStringAsPrecision(3)),
+                  const Text("calibrated yaw:"),
+                  Text(state.calibratedYaw.toStringAsPrecision(3)),
+                  const Text(
+                    "mean angle:",
+                    style: TextStyle(fontSize: 20.0),
+                  ),
+                  Text(
+                    state.meanAngle.toStringAsPrecision(3),
+                    style: TextStyle(fontSize: 20.0),
+                  ),
+                ],
               ),
             );
 

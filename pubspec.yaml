@@ -39,8 +39,10 @@ dependencies:
   flutter_bloc: ^8.1.3
   syncfusion_flutter_gauges: ^22.1.36
   vector_math: ^2.1.4
+  # Path in Mac address form and Windows form
   position_sensors: 
-    path: lib\position_sensors-main\position_sensors
+    path: lib/position_sensors-main/position_sensors
+    #path: lib\position_sensors-main\position_sensors
 
 dev_dependencies:
   flutter_test:
