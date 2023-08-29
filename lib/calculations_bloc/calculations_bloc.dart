@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:position_sensors/position_sensors.dart';
-import 'package:sensors_plus/sensors_plus.dart';
 import 'package:collection/collection.dart';
 import 'package:vector_math/vector_math.dart';
 
@@ -11,7 +10,7 @@ part 'calculations_event.dart';
 part 'calculations_state.dart';
 
 const double G = 9.81;
-const int calibrationTime = 2;
+const int calibrationTime = 5;
 
 class CalculationsBloc extends Bloc<CalculationsEvent, CalculationsState> {
   CalculationsBloc() : super(ReadyToCollectData()) {

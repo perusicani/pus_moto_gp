@@ -46,19 +46,21 @@ class CalibrationPage extends StatelessWidget {
                         "x: ${calculationBloc.calibration!.x}, y: ${calculationBloc.calibration!.y}, z: ${calculationBloc.calibration!.z}, w: ${calculationBloc.calibration!.w}",
                       ),
                     ElevatedButton(
-                      onPressed: () {
-                        calculationBloc.startCalculatingAngle();
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => BlocProvider(
-                              create: (context) => calculationBloc,
-                              child: HomePage(),
-                            ),
-                          ),
-                        );
-                        calculationBloc.add(Calculate());
-                      },
-                      child: const Text("go to home page"),
+                      onPressed: calculationBloc.calibration != null
+                          ? () {
+                              calculationBloc.startCalculatingAngle();
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => BlocProvider(
+                                    create: (context) => calculationBloc,
+                                    child: HomePage(),
+                                  ),
+                                ),
+                              );
+                              calculationBloc.add(Calculate());
+                            }
+                          : null,
+                      child: const Text("Start"),
                     ),
                   ],
                 );
