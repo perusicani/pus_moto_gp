@@ -1,16 +1,9 @@
 # moto_gp
 
-A new Flutter project.
 
-## Getting Started
+## Opis
 
-This project is a starting point for a Flutter application.
+Aplikacija koja prikazuje trenutni nagib mobilnog uređaja uzimajući u obzir početnu kalibraciju položaja uređaja. Namijenjena je korištenju prilikom vožnje vozila sa dva kotača koji iskazuju veliku mogućnost naginjanja u stranu tijekom vožnje. 
 
-A few resources to get you started if this is your first Flutter project:
+Aplikacija ovisi o mobilnom uređaju na kojem je pokrenuta te ne može garantirati točnost podataka koje prikazuje zbog akumuliraih grešaka senzora koji se koriste (gyro, accelero, magneto - putem rotation sensor izračuna na Android OS-u). Iz toga razloga, korištenje je namjenjeno striktno u istraživačke svrhe, kako bi se vidjelo koliko ispravno se mogu dobiti podaci bez korištenja vanjskih, preciznijih modula.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
